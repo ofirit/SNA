@@ -1,5 +1,5 @@
-import tweepy as tw
 import json
+import csv
 
 TWEET_KEYS = ['created_at', 'user', 'id', 'source', 'truncated', 'in_reply_to_status_id',
               'in_reply_to_user_id', 'lang', 'retweeted', 'is_quote_status', 'entities', 'retweet_count',
@@ -7,7 +7,7 @@ TWEET_KEYS = ['created_at', 'user', 'id', 'source', 'truncated', 'in_reply_to_st
 
 
 def get_tweet(api, lat=None, long=None, radios=1, words="", num_of_res=10000,
-              until=None, include_replays=False):
+              until=None, include_replays=False, location_code=None):
     res_count = 0
     geo_code = "%f,%f,%dkm" % (lat, long, radios) if (lat and long) else None
     query = []
@@ -17,27 +17,25 @@ def get_tweet(api, lat=None, long=None, radios=1, words="", num_of_res=10000,
     while num_of_res > res_count and len(query) > 0:
         try:
             query = api.search(q=words, count=100, geocode=geo_code, until=until,
-                            max_id=last_id)
-
+                               max_id=last_id)
             for status in query:
                 # filter replays
                 if status.in_reply_to_status_id is None or include_replays:
-                    tweets.append(filter_status(status._json))
-                    # tweets.append(staus.id)
-                    #               # tweets.append(staus.text)
+                    tweets.append(filter_status(status._json, location_code=location_code))
                     res_count += 1
-                    if (res_count == num_of_res):
+                    if res_count == num_of_res:
                         break
-                last_id = (status.id) - 1
+                last_id = status.id - 1
         except Exception as e:
             print('error')
     return tweets
 
 
-def filter_status(status):
+def filter_status(status, location_code=None):
     """
     this function gets status and filter it
     by the relevant keys that we want to save.
+    :param location_code:
     :param status: status in json format
     :return: dict: filtered status in dict format
     """
@@ -52,6 +50,7 @@ def filter_status(status):
         if att == 'place':
             dict['place_id'] = status[att]['id'] if status[att] else None
             continue
+        dict['location_code'] = location_code
 
         dict[att] = status[att]
     return dict
