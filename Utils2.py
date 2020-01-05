@@ -1,9 +1,7 @@
 import tweepy
-# from General import *
+from General import *
 from datetime import datetime
-# from data_handler import *
-import csv
-import json
+from data_handler import *
 
 # Global variables
 
@@ -174,13 +172,3 @@ def get_all_tweets(self, id="", user_id="", screen_name=""):
     # Transform the tweepy tweets into a 2D array that will populate the csv
     out_tweets = [[tweet.id_str, tweet.created_at, tweet.text.encode("utf-8")] for tweet in all_tweets]
     write_to_csv(out_tweets, screen_name=screen_name)
-    # with open("data_file_2.json", "w") as write_file:
-    #     json.dump(out_tweets, write_file, indent=4)
-
-def write_to_csv(list_to_write, screen_name):
-    with open('%s_tweets.csv' % screen_name, 'w') as f:
-        writer = csv.writer(f)
-        writer.writerow(['id', 'created_at', 'text'])
-        writer.writerows(list_to_write)
-
-
