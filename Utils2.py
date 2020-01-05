@@ -63,25 +63,25 @@ def get_tweet_by_id(self, wanted_tweets_id):
     return tweets_for_train_list, publishers_for_train, True
 
 
-def send_data(self, table_name):
-    # insert_tweets(self.tweets_list)
-    if table_name not in self.tweets_list:
-        print("Table name does not exist please use send_new_data()")
-        raise Exception
-        return
-
-    if table_name == "publishers" and len(self.publishers_list) != 0:
-        insert(table_name, self.publishers_list)
-    elif table_name == "tweets" and len(self.tweets_list) != 0:
-        insert(table_name, self.tweets_list)
-    elif table_name == "tweets_for_train" and len(self.tweets_for_train_list) != 0:
-        insert(table_name, self.tweets_for_train_list)
-    elif table_name == "publishers_for_train" and len(self.publishers_for_train) != 0:
-        insert(table_name, self.publishers_for_train)
-    else:
-        print(f"{table_name} list is empty!")
-
-    return
+# def send_data(self, table_name):
+#     # insert_tweets(self.tweets_list)
+#     if table_name not in self.tweets_list:
+#         print("Table name does not exist please use send_new_data()")
+#         raise Exception
+#         return
+#
+#     if table_name == "publishers" and len(self.publishers_list) != 0:
+#         insert(table_name, self.publishers_list)
+#     elif table_name == "tweets" and len(self.tweets_list) != 0:
+#         insert(table_name, self.tweets_list)
+#     elif table_name == "tweets_for_train" and len(self.tweets_for_train_list) != 0:
+#         insert(table_name, self.tweets_for_train_list)
+#     elif table_name == "publishers_for_train" and len(self.publishers_for_train) != 0:
+#         insert(table_name, self.publishers_for_train)
+#     else:
+#         print(f"{table_name} list is empty!")
+#
+#     return
 
 
 def get_mentions(self, max_time_in_seconds=3600 * 24):
