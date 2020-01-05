@@ -1,56 +1,45 @@
 import tweepy as tw
-import csv
-import Utils
 import json
-from elasticsearch import Elasticsearch
 
-TWEET_KEYS = ['created_at','user', 'id', 'source', 'truncated', 'in_reply_to_status_id',
-              'in_reply_to_user_id', 'lang', 'retweeted','is_quote_status',  'entities','retweet_count',
+TWEET_KEYS = ['created_at', 'user', 'id', 'source', 'truncated', 'in_reply_to_status_id',
+              'in_reply_to_user_id', 'lang', 'retweeted', 'is_quote_status', 'entities', 'retweet_count',
               'coordinates', 'place', 'text']
 
 
-
-def get_tweet(api, lat=None, long=None, radios=1, words = "", num_of_res = 500,
-              until=None, include_replays = False):
+def get_tweet(api, lat=None, long=None, radios=1, words="", num_of_res=10000,
+              until=None, include_replays=False):
     res_count = 0
-    geo_code = "%f,%f,%dkm" % (lat, long, radios) if lat and long else None
+    geo_code = "%f,%f,%dkm" % (lat, long, radios) if (lat and long) else None
     query = []
     tweets = []
     last_id = None
     query = ['1']
-    while (res_count < num_of_res and len(query) > 0):
-        query = api.search(q=words, count=50, geocode=geo_code, until=until,
-                                max_id=last_id)
+    while num_of_res > res_count and len(query) > 0:
+        try:
+            query = api.search(q=words, count=100, geocode=geo_code, until=until,
+                            max_id=last_id)
 
-        for staus in query:
-            # filter replays
-            if (staus.in_reply_to_status_id == None or include_replays):
-
-                tweets.append(Utils.filter(staus._json))
-            last_id = (staus.id) - 1
-
-        res_count += len(query)
-
+            for status in query:
+                # filter replays
+                if status.in_reply_to_status_id is None or include_replays:
+                    tweets.append(filter_status(status._json))
+                    # tweets.append(staus.id)
+                    #               # tweets.append(staus.text)
+                    res_count += 1
+                    if (res_count == num_of_res):
+                        break
+                last_id = (status.id) - 1
+        except Exception as e:
+            print('error')
     return tweets
 
 
-def get_hastages_list(status_hashtags):
-    """this function gets only hastag names
-    from a status hashtag entry
-    :param status_hashtags:
-    :return: list of hastags
+def filter_status(status):
     """
-    hashtages = []
-    for hastag in status_hashtags:
-        hashtages.append(hastag['text'])
-    return hashtages
-
-
-def filter(status):
-    """this function gets status and filter it
-    by the relevant keys
+    this function gets status and filter it
+    by the relevant keys that we want to save.
     :param status: status in json format
-    :return:
+    :return: dict: filtered status in dict format
     """
     dict = {}
     for att in TWEET_KEYS:
@@ -58,7 +47,7 @@ def filter(status):
             dict['user_id'] = status[att]['id']
             continue
         if att == 'entities':
-            dict['hashtags'] = get_hastages_list(status[att]['hashtags'])
+            dict['hashtags'] = status[att]['hashtags']
             continue
         if att == 'place':
             dict['place_id'] = status[att]['id'] if status[att] else None
@@ -68,19 +57,13 @@ def filter(status):
     return dict
 
 
-def status_to_jason(status):
-     j = json.dumps(status, indent=4)
-     return j
+def write_to_json(file_name, res):
+    with open(file_name, "w") as write_file:
+        json.dump(res, write_file, indent=4)
 
 
-def write_to(list_to_write, file_name):
+def write_to_csv(list_to_write, file_name):
     with open('%s_tweets.csv' % file_name, 'w') as f:
         writer = csv.writer(f)
         writer.writerow(['id', 'text'])
         writer.writerows(list_to_write)
-
-
-
-
-
-
