@@ -14,11 +14,6 @@ access_token = "1204366824353226752-gHhuzRaQJPG8C6w4I98TLI5YSjWhWH"
 access_token_secret = "FUCPjicyAzIKoXBhRzRUWI6gvEiatCRsaC9yVRUmVQLWW"
 
 
-TEL_AVIV = {
-    'lat': 32.085300,
-    'long': 34.781769
-}
-
 class TwitterAccount:
 
     def __init__(self):
@@ -37,21 +32,14 @@ class TwitterAccount:
         except:
             print("Error during authentication")
 
-        api = twitter_account.api
+        self.api = twitter_account.api
 
-        # res = Utils.get_tweet(api, words='Yoav')
-        # res = Utils.get_tweet_by_word(api, '"bibi Netanyahu"',12)
-
-        res = Utils.get_tweet(api, lat=TEL_AVIV['lat'], long=TEL_AVIV['long'], radios=200, words="")
+    def get_filtered_tweets(self, lat, long, location_code, radios, query, num_of_results):
+        res = Utils.get_tweet(self.api, lat=lat, long=long, radios=radios, words=query, num_of_res=num_of_results, location_code=location_code)
         a = 0
-        print(res)
+        return res
 
-        for r in res:
-            a = a + 1
-            #print(r, " ", a)
-            # elastic2.send_data_to_es(r, a + 2000)
-        # Utils.write_to_csv(res, 'Tweets')
-        Utils.write_to_json("Tweets.json", res)
+        # Utils.write_to_json("Tweets.json", res)
 
 
 if __name__ == '__main__':

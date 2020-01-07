@@ -1,7 +1,7 @@
 # token: EAAGVfCGky9sBAIxq9PgIi5hgudGRLa1emgzZAggrlpWfXPXW5vm5bQmQ3W9e73mKF9mx6ZCFlbsDFkA0GmtqLENdswEoOzWFDgLg2mSOfRsvD7wjNjPUVnn7t4JZAZCwN0CAfBmum5B5QK1U4CCpufyJbfauPyJqkse0vEUWWt4nGkPiG8SjDYMMh7TYjmlOR0gcgyruWgZDZD
 import os
 import json
-# import facebook
+import facebook
 import twitter_account
 
 if __name__ == '__main__':
