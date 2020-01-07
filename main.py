@@ -19,8 +19,14 @@ ta.run()
 es = elastic2.ElasticSearchClass()
 
 
+# for location in locations:
+#     tweets = ta.get_filtered_tweets(lat=location['lat'], long=location['long'], location_code=location['location_code'], radios=location['radios'], query="likod OR ליכוד OR נתניהו OR ביבי OR bibi OR netanyahu OR نتانياهو", num_of_results=1500)
+#     print(tweets)
+#     for status in tweets:
+#         es.send_data_to_es(data=status, index_name='tweets_areas2')
+
 for location in locations:
-    tweets = ta.get_filtered_tweets(lat=location['lat'], long=location['long'], location_code=location['location_code'], radios=location['radios'], query="likod OR ליכוד OR נתניהו OR ביבי OR bibi OR netanyahu OR نتانياهو", num_of_results=1500)
+    tweets = ta.get_filtered_tweets(lat=location['lat'], long=location['long'], location_code=location['location_code'], radios=location['radios'], query=["gantz OR lapid OR לפיד OR גנץ"], num_of_results=1500)
     print(tweets)
     for status in tweets:
         es.send_data_to_es(data=status, index_name='tweets_areas2')
