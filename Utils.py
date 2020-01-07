@@ -7,7 +7,7 @@ TWEET_KEYS = ['created_at', 'user', 'id', 'source', 'truncated', 'in_reply_to_st
 
 
 def get_tweet(api, lat=None, long=None, radios=1, words="", num_of_res=10000,
-              until=None, include_replays=False, location_code=None):
+              until=None, include_replays=False, include_retweets=False, location_code=None):
     res_count = 0
     geo_code = "%f,%f,%dkm" % (lat, long, radios) if (lat and long) else None
     query = []
@@ -20,7 +20,8 @@ def get_tweet(api, lat=None, long=None, radios=1, words="", num_of_res=10000,
                                max_id=last_id)
             for status in query:
                 # filter replays
-                if status.in_reply_to_status_id is None or include_replays:
+                if (status.in_reply_to_status_id is None or include_replays) and \
+                        ('RT @' not in status.text or include_retweets):
                     tweets.append(filter_status(status._json, location_code=location_code))
                     res_count += 1
                     if res_count == num_of_res:
