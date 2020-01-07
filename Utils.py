@@ -1,16 +1,8 @@
-<<<<<<< HEAD
 import json
 import csv
 
 TWEET_KEYS = ['entities', 'created_at', 'user', 'id', 'source', 'truncated', 'in_reply_to_status_id',
               'in_reply_to_user_id', 'lang', 'retweeted', 'is_quote_status', 'retweet_count',
-=======
-import tweepy as tw
-import json
-
-TWEET_KEYS = ['created_at', 'user', 'id', 'source', 'truncated', 'in_reply_to_status_id',
-              'in_reply_to_user_id', 'lang', 'retweeted', 'is_quote_status', 'entities', 'retweet_count',
->>>>>>> 356abe11e8a1a845bc435e82282313824d57327c
               'coordinates', 'place', 'text']
 
 USER_KEYS = ["id", "name", "screen_name", "location", "followers_count", "friends_count", "listed_count",
@@ -19,14 +11,9 @@ USER_KEYS = ["id", "name", "screen_name", "location", "followers_count", "friend
 ENTITIES_KEYS = ["hashtags", "media"]
 PLACE_KEYS = ["place_type", "name", "id", "full_name", "country_code", "country", "bounding_box"]
 
-<<<<<<< HEAD
 
 def get_tweet(api, lat=None, long=None, radios=1, words="", num_of_res=10000,
               until=None, include_replays=False, include_retweets=False, location_code=None):
-=======
-def get_tweet(api, lat=None, long=None, radios=1, words="", num_of_res=10000,
-              until=None, include_replays=False):
->>>>>>> 356abe11e8a1a845bc435e82282313824d57327c
     res_count = 0
     geo_code = "%f,%f,%dkm" % (lat, long, radios) if (lat and long) else None
     query = []
@@ -36,7 +23,6 @@ def get_tweet(api, lat=None, long=None, radios=1, words="", num_of_res=10000,
     while num_of_res > res_count and len(query) > 0:
         try:
             query = api.search(q=words, count=100, geocode=geo_code, until=until,
-<<<<<<< HEAD
                                max_id=last_id)
             for status in query:
                 # filter replays
@@ -51,28 +37,16 @@ def get_tweet(api, lat=None, long=None, radios=1, words="", num_of_res=10000,
         except Exception as e:
             print(e)
             js = status._json
-=======
-                            max_id=last_id)
-
-            for status in query:
-                # filter replays
-                if status.in_reply_to_status_id is None or include_replays:
-                    tweets.append(filter_status(status._json))
-                    # tweets.append(staus.id)
-                    #               # tweets.append(staus.text)
-                    res_count += 1
-                    if (res_count == num_of_res):
-                        break
-                last_id = (status.id) - 1
-        except Exception as e:
->>>>>>> 356abe11e8a1a845bc435e82282313824d57327c
             print('error')
     return tweets
 
 
-def filter_status(status):
+def get_hastages_list(status_hashtags):
+    """this function gets only hastag names
+    from a status hashtag entry
+    :param status_hashtags:
+    :return: list of hastags
     """
-<<<<<<< HEAD
     hashtages = []
     for hastag in status_hashtags:
         hashtages.append(hastag['text'])
@@ -98,10 +72,6 @@ def filter_status(status, location_code=None, ):
     this function gets status and filter it
     by the relevant keys that we want to save.
     :param location_code:
-=======
-    this function gets status and filter it
-    by the relevant keys that we want to save.
->>>>>>> 356abe11e8a1a845bc435e82282313824d57327c
     :param status: status in json format
     :return: dict: filtered status in dict format
     """
@@ -113,7 +83,6 @@ def filter_status(status, location_code=None, ):
                 dict[att + '_' + key] = status[att][key] if status[att] else None
             continue
         if att == 'entities':
-<<<<<<< HEAD
             for key in ENTITIES_KEYS:
                 if key == 'hashtags' and key in status[att].keys():
                     dict[key] = get_hastages_list(status[att][key])
@@ -125,12 +94,6 @@ def filter_status(status, location_code=None, ):
                 else:
                     dict['media_type'] = None
                     dict['media_url'] = None
-=======
-            dict['hashtags'] = status[att]['hashtags']
-            continue
-        if att == 'place':
-            dict['place_id'] = status[att]['id'] if status[att] else None
->>>>>>> 356abe11e8a1a845bc435e82282313824d57327c
             continue
         if att == 'place' and status[att]:
             for key in PLACE_KEYS:
