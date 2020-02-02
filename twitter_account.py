@@ -1,17 +1,10 @@
 import tweepy as tw
-import re
-import io
-import csv
-from tweepy import OAuthHandler
-import Utils
-import json
-import elastic2
 
-consumer_key = "oImbQSGr6eQmuVtJDfLxUf6AQ"
-consumer_secret = "9GgY6XiLDyHItX0kY8ypJRGZDcBr1lK9rdXYj9UvP3CW7MVg2E"
+consumer_key = "61QlCNww0s7qGxyEqjiUmjdih"
+consumer_secret = "cwLq6wJ0P232WkvatBk1utWp1BcxlDXCh4Fns8xFfrZj051J3X"
 
-access_token = "1204366824353226752-gHhuzRaQJPG8C6w4I98TLI5YSjWhWH"
-access_token_secret = "FUCPjicyAzIKoXBhRzRUWI6gvEiatCRsaC9yVRUmVQLWW"
+access_token = "1204366824353226752-YKXETabiCRWYgdcbU2YuNIKZiuVl55"
+access_token_secret = "W1f6FMnfeH52bxpmwYTHeFzExFlpYTUJJ94G0HSrACZNR"
 
 
 class TwitterAccount:
@@ -33,13 +26,6 @@ class TwitterAccount:
             print("Error during authentication")
 
         self.api = twitter_account.api
-
-    def get_filtered_tweets(self, lat, long, location_code, radios, query, num_of_results):
-        res = Utils.get_tweet(self.api, lat=lat, long=long, radios=radios, words=query, num_of_res=num_of_results, location_code=location_code)
-        a = 0
-        return res
-
-        # Utils.write_to_json("Tweets.json", res)
 
 
 if __name__ == '__main__':

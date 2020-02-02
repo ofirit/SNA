@@ -1,5 +1,6 @@
 import json
 import csv
+import elastic2
 
 TWEET_KEYS = ['entities', 'created_at', 'user', 'id', 'source', 'truncated', 'in_reply_to_status_id',
               'in_reply_to_user_id', 'lang', 'retweeted', 'is_quote_status', 'retweet_count',
@@ -9,14 +10,15 @@ USER_KEYS = ["id", "name", "screen_name", "location", "followers_count", "friend
              "statuses_count", "created_at", "time_zone", "lang", "following"]
 
 ENTITIES_KEYS = ["hashtags", "media"]
+
 PLACE_KEYS = ["place_type", "name", "id", "full_name", "country_code", "country", "bounding_box"]
 
 
 def get_tweet(api, lat=None, long=None, radios=1, words="", num_of_res=10000,
-              until=None, include_replays=False, include_retweets=False, location_code=None):
+              until=None, include_replays=False, include_retweets=False, location_code=None, es=None, index_name=None):
+
     res_count = 0
-    geo_code = "%f,%f,%dkm" % (lat, long, radios) if (lat and long) else None
-    query = []
+    geo_code = "%f,%f,%dkm" % (lat, long, radios) if (lat and long and radios) else None
     tweets = []
     last_id = None
     query = ['1']
@@ -25,32 +27,38 @@ def get_tweet(api, lat=None, long=None, radios=1, words="", num_of_res=10000,
             query = api.search(q=words, count=100, geocode=geo_code, until=until,
                                max_id=last_id)
             for status in query:
-                # filter replays
-                if (status.in_reply_to_status_id is None or include_replays) and \
-                        ('RT @' not in status.text or include_retweets):
+                # filter replays and retweets
+                if 'RT @' not in status.text or include_retweets:
+                    if status.in_reply_to_status_id is None or include_replays:
+                        if es.check_if_tweet_exists(data=status, index_name=index_name):
+                            print('exists')
+                            last_id = status.id - 1
+                            continue
+                        # adding the filtered status fields and the computed field location_code
+                        tweets.append(filter_status(status._json, location_code=location_code))
+                        last_id = status.id - 1
+                        res_count += 1
+                        if res_count >= num_of_res:
+                            break
 
-                    tweets.append(filter_status(status._json, location_code=location_code))
-                    res_count += 1
-                    if res_count == num_of_res:
-                        break
-                last_id = status.id - 1
+
         except Exception as e:
             print(e)
-            js = status._json
-            print('error')
+            print('Error getting tweets')
     return tweets
 
 
 def get_hastages_list(status_hashtags):
-    """this function gets only hastag names
+    """this function gets only hashtag names
     from a status hashtag entry
     :param status_hashtags:
-    :return: list of hastags
+    :return: list of hashtags
     """
-    hashtages = []
-    for hastag in status_hashtags:
-        hashtages.append(hastag['text'])
-    return hashtages
+    hashtags = []
+    for hashtag in status_hashtags:
+        if 'text' in hashtag.keys():
+            hashtags.append(hashtag['text'])
+    return hashtags
 
 
 def get_media_att(status_media):
@@ -67,7 +75,7 @@ def get_cordinents(status_bounding_box):
     return coordinates, type_
 
 
-def filter_status(status, location_code=None, ):
+def filter_status(status, location_code=None):
     """
     this function gets status and filter it
     by the relevant keys that we want to save.
@@ -75,40 +83,41 @@ def filter_status(status, location_code=None, ):
     :param status: status in json format
     :return: dict: filtered status in dict format
     """
-    dict = {}
+    tweets_dict = {}
 
     for att in TWEET_KEYS:
         if att == 'user':
             for key in USER_KEYS:
-                dict[att + '_' + key] = status[att][key] if status[att] else None
+                tweets_dict[att + '_' + key] = status[att][key] if status[att] else None
             continue
         if att == 'entities':
             for key in ENTITIES_KEYS:
                 if key == 'hashtags' and key in status[att].keys():
-                    dict[key] = get_hastages_list(status[att][key])
-
+                    # tweets_dict[key] = get_hastages_list(status[att][key])
+                    tweets_dict[key] = None
+                    
                 if key == 'media' and key in status[att].keys():
                     media_type, media_url = get_media_att(status[att][key])
-                    dict['media_type'] = media_type
-                    dict['media_url'] = media_url
+                    tweets_dict['media_type'] = media_type
+                    tweets_dict['media_url'] = media_url
                 else:
-                    dict['media_type'] = None
-                    dict['media_url'] = None
+                    tweets_dict['media_type'] = None
+                    tweets_dict['media_url'] = None
             continue
         if att == 'place' and status[att]:
             for key in PLACE_KEYS:
 
                 if key == "bounding_box" and key in status[att].keys():
                     coord, type_ = get_cordinents(status[att][key])
-                    dict['coordinates'] = coord
-                    dict['coordinates_type'] = type_
+                    tweets_dict['coordinates'] = coord
+                    tweets_dict['coordinates_type'] = type_
                 else:
-                    dict[att + '_' + key] = status[att][key] if (status[att] and key in status[att].keys()) else None
+                    tweets_dict[att + '_' + key] = status[att][key] if (status[att] and key in status[att].keys()) else None
                 continue
 
-        dict[att] = status[att]
-    dict['location_code'] = location_code
-    return dict
+        tweets_dict[att] = status[att]
+    tweets_dict['location_code'] = location_code
+    return tweets_dict
 
 
 def write_to_json(file_name, res):

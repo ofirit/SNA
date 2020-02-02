@@ -1,16 +1,22 @@
 import elastic2
 import twitter_account
+import Utils
 
 locations = [
-    {'location_code': 'TA', 'lat': 32.085300, 'long': 34.811409, 'radios': 5.5},
-    {'location_code': 'HOLON', 'lat': 32.002849, 'long': 34.778214, 'radios': 5.0},
-    {'location_code': 'HERZELIYA', 'lat': 32.169051, 'long': 34.862736, 'radios': 6.0},
-    {'location_code': 'REHOVOT', 'lat': 31.912339, 'long': 34.802501, 'radios': 6.0},
-    {'location_code': 'BEITSHEMESH', 'lat': 31.752787, 'long': 34.979741, 'radios': 20.0},
-    {'location_code': 'LACHISH', 'lat': 31.515607, 'long': 34.780647, 'radios': 15.0},
-    {'location_code': 'RAMATNEGEV', 'lat': 30.583785, 'long': 34.898294, 'radios': 35.0},
-    {'location_code': 'HEVELEILOT', 'lat': 30.195234, 'long': 34.903787, 'radios': 35.0},
-    {'location_code': 'HEVELEILOT-S', 'lat': 29.835260, 'long': 34.995885, 'radios': 35.0}
+    {'location_code': 'Eliat', 'lat': 29.875702, 'long': 34.958404, 'radios': 43.530},
+    {'location_code': 'Negev', 'lat': 30.878236, 'long': 34.867489, 'radios': 65.140},
+    {'location_code': 'Ashdod-Ashkelon', 'lat': 31.684079, 'long': 34.728033, 'radios': 22.280},
+    {'location_code': 'DeadSea', 'lat': 31.498442, 'long': 35.343956, 'radios': 17.644},
+    {'location_code': 'Jerusalem', 'lat': 31.740343, 'long': 35.127538, 'radios': 15.389},
+    {'location_code': 'WestBank', 'lat': 31.922449, 'long': 35.372519, 'radios': 15.148},
+    {'location_code': 'Lod-Modiin', 'lat': 31.934996, 'long': 35.009428, 'radios': 9.030},
+    {'location_code': 'Rishon', 'lat': 31.951905, 'long': 34.795682, 'radios': 9.021},
+    {'location_code': 'TelAviv', 'lat': 32.084554, 'long': 34.770754, 'radios': 5.647},
+    {'location_code': 'PetahTikve', 'lat': 32.065936, 'long': 34.913747, 'radios': 8.242},
+    {'location_code': 'Hasharon-Caesarea', 'lat': 32.407973, 'long': 34.802259, 'radios': 31.069},
+    {'location_code': 'Haifa-Naharia', 'lat': 32.835003, 'long': 35.021563, 'radios': 22.810},
+    {'location_code': 'Tibirias-Nazarath', 'lat': 32.725694, 'long': 35.500, 'radios': 25.238},
+    {'location_code': 'Qiryat Shemona', 'lat': 32.725694, 'long': 35.500484, 'radios': 25.238}
 ]
 
 ta = twitter_account.TwitterAccount()
@@ -18,15 +24,15 @@ ta.run()
 
 es = elastic2.ElasticSearchClass()
 
+# words="likud OR likod OR ליכוד OR נתניהו OR ביבי OR bibi OR netanyahu OR نتانياهو", num_of_results=1500)
+# words=['Bibi', 'Netanyahu', 'نتانياهو', 'بنيامين', 'ביבי' ,'נתניהו'], num_of_res=100)
 
-# for location in locations:
-#     tweets = ta.get_filtered_tweets(lat=location['lat'], long=location['long'], location_code=location['location_code'], radios=location['radios'], query="likod OR ליכוד OR נתניהו OR ביבי OR bibi OR netanyahu OR نتانياهو", num_of_results=1500)
-#     print(tweets)
-#     for status in tweets:
-#         es.send_data_to_es(data=status, index_name='tweets_areas2')
+index_name = 'israel_locations'
 
 for location in locations:
-    tweets = ta.get_filtered_tweets(lat=location['lat'], long=location['long'], location_code=location['location_code'], radios=location['radios'], query=["gantz OR lapid OR לפיד OR גנץ"], num_of_results=1500)
-    print(tweets)
-    for status in tweets:
-        es.send_data_to_es(data=status, index_name='tweets_areas2')
+    tweets = Utils.get_tweet(ta.api, lat=location['lat'], long=location['long'],
+                             location_code=location['location_code'], radios=location['radios'],
+                             words="קטש",
+                             num_of_res=100, es=es, index_name=index_name)
+    for tweet in tweets:
+        es.send_data_to_es(data=tweet, index_name=index_name)
