@@ -35,7 +35,7 @@ index_name = 'israel_locations5'
 for location in locations:
     tweets = Utils.get_tweet(ta.api, lat=location['lat'], long=location['long'],
                              location_code=location['location_code'], radios=location['radios'],
-                             words="Omer",
-                             num_of_res=100, es=es, index_name=index_name)
+                             words="Bibi OR ביבי",
+                             num_of_res=1000, es=es, index_name=index_name)
     for tweet in tweets:
         es.send_data_to_es(data=tweet, index_name=index_name)

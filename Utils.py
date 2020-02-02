@@ -116,6 +116,7 @@ def filter_status(status, location_code=None, lat=None, long=None):
 
         tweets_dict[att] = status[att]
     tweets_dict['location_coordinates'] = [long, lat]
+    tweets_dict['location_code'] = location_code
     return tweets_dict
 
 
