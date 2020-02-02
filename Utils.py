@@ -36,10 +36,10 @@ def get_tweet(api, lat=None, long=None, radios=1, words="", num_of_res=10000,
                             continue
                         # adding the filtered status fields and the computed field location_code
                         tweets.append(filter_status(status._json, location_code=location_code))
-                        last_id = status.id - 1
                         res_count += 1
                         if res_count >= num_of_res:
                             break
+                last_id = status.id - 1
 
 
         except Exception as e:
