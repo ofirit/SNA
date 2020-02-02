@@ -1,6 +1,5 @@
 import json
 import csv
-import elastic2
 
 TWEET_KEYS = ['entities', 'created_at', 'user', 'id', 'source', 'truncated', 'in_reply_to_status_id',
               'in_reply_to_user_id', 'lang', 'retweeted', 'is_quote_status', 'retweet_count',
@@ -35,7 +34,7 @@ def get_tweet(api, lat=None, long=None, radios=1, words="", num_of_res=10000,
                             last_id = status.id - 1
                             continue
                         # adding the filtered status fields and the computed field location_code
-                        tweets.append(filter_status(status._json, location_code=location_code))
+                        tweets.append(filter_status(status._json, location_code=location_code, lat=lat, long=long))
                         res_count += 1
                         if res_count >= num_of_res:
                             break
@@ -75,7 +74,7 @@ def get_cordinents(status_bounding_box):
     return coordinates, type_
 
 
-def filter_status(status, location_code=None):
+def filter_status(status, location_code=None, lat=None, long=None):
     """
     this function gets status and filter it
     by the relevant keys that we want to save.
@@ -116,7 +115,7 @@ def filter_status(status, location_code=None):
                 continue
 
         tweets_dict[att] = status[att]
-    tweets_dict['location_code'] = location_code
+    tweets_dict['location_coordinates'] = [long, lat]
     return tweets_dict
 
 

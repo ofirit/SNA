@@ -1,3 +1,5 @@
+from typing import Dict
+
 import elastic2
 import twitter_account
 import Utils
@@ -27,12 +29,13 @@ es = elastic2.ElasticSearchClass()
 # words="likud OR likod OR ליכוד OR נתניהו OR ביבי OR bibi OR netanyahu OR نتانياهو", num_of_results=1500)
 # words=['Bibi', 'Netanyahu', 'نتانياهو', 'بنيامين', 'ביבי' ,'נתניהו'], num_of_res=100)
 
-index_name = 'israel_locations'
+index_name = 'israel_locations5'
+#es.send_data_to_es(data=None, index_name=index_name)
 
 for location in locations:
     tweets = Utils.get_tweet(ta.api, lat=location['lat'], long=location['long'],
                              location_code=location['location_code'], radios=location['radios'],
-                             words="קטש",
+                             words="Omer",
                              num_of_res=100, es=es, index_name=index_name)
     for tweet in tweets:
         es.send_data_to_es(data=tweet, index_name=index_name)
